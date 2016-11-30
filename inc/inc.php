@@ -1,14 +1,44 @@
 <?php
 
 use FFMpeg\FFMpeg;
-use FFMpeg\Coordinate\TimeCode;
-use FFMpeg\Format\Video;
+//use FFMpeg\Coordinate\TimeCode;
+//use FFMpeg\Format\Video;
 use FFMpeg\FFProbe;
 
 require_once( dirname(__DIR__) . "/vendor/autoload.php");
 // ----------------- int class ---------------------
-$Ffmpeg = FFMpeg::create();
+if( getOS() == "linux" ){
+	// $Ffmpeg = FFMpeg::create(array(
+	// 	"ffmpeg.binaries" => __DIR__ . "/ffmpegLinux/ffmpeg",
+	// 	"ffprobe.binaries" => __DIR__ . "/ffmpegLinux/ffprobe",
+	// 	"timeout" => 3600, 
+	// 	"ffmpeg.threads" => 24
+	// ));	
+    
+    try{
+        $Ffmpeg = FFMpeg::create();
+    }catch(Exception $e){
+        echo "\n Có lỗi xảy ra khi khởi tạo ffmpeg, bạn đã cài đặt ffmpeg cho linux chưa !? \n ";
+        die;
+    }
+    $Ffmpeg = FFMpeg::create();
+}else {
+	if( getOS()  == "windows") {
+		try{
+			$Ffmpeg = FFMpeg::create();
+		}catch( Exception $ex ){
+			echo "\n Co loi xay ra khi khoi tao ffmpeg, them ffmpeg vao system PATH : http://adaptivesamples.com/how-to-install-ffmpeg-on-windows/ ";
+			die;
+		}
+	}else{
+		echo "\n your OS is not supported: {$PHP_OS} \n ";
+		die;
+	}
+
+}
+
 $Ffprobe = FFProbe::create();
+
 
 // ----------------- end class ----------------------
 // 
@@ -21,20 +51,8 @@ $Ffprobe = FFProbe::create();
 //  $saveDirPath : folder save da xu li 
 function cutVideoAndSave($arrFileName, $arrSupportExt, $openDirPath, $saveDirPath, $startTime, $endTime) {
     $convertQueue = array();
-
-    // check os 
-    if (strtolower(PHP_OS) == "linux") {
-        echo "-- support 64bit linux os -- \n ";
-        $osType = "linux";
-    } else {
-        if (strtolower(PHP_OS) == "windows") {
-            echo "-- support windows 32 + 64 bit -- \n ";
-            $osType = "windows";
-        } else {
-            echo "Không hỗ trợ hệ điều hành này  " . PHP_OS;
-            die;
-        }
-    }
+	
+	$osType = getOS();
 
     // check file hop le 
     foreach ($arrFileName as $file) {
@@ -63,7 +81,7 @@ function cutVideoAndSave($arrFileName, $arrSupportExt, $openDirPath, $saveDirPat
         
         echo "\n filename:" . $fileName . "\n";
         echo "\n CMD: ". $cmd . "\n";
-        // @shell_exec($cmd);
+        system($cmd);
     }
 
     echo "\n Convert xong ! , tổng cộng [ " . sizeof($convertQueue) . " ] file !  Lưu vào folder:  " . $saveDirPath . " \n ";
@@ -73,15 +91,16 @@ function cutVideoAndSave($arrFileName, $arrSupportExt, $openDirPath, $saveDirPat
 
 function getVideoLength($videoName) {
     global $Ffprobe;
-    return $Ffprobe->streams($videoName)->videos()->first()->get("duration");
+    // return $Ffprobe->streams($videoName)->videos()->first()->get("duration");
+	return $Ffprobe->format($videoName)->get("duration");
 }
 
 // build cutCommand 
 function cutCommandBuilder($currentFileName, $openDir, $saveDir, $startTime, $endTime, $osType) {
     if ($osType == "linux") {
-        $commandBuilt = "ffmpegLinux".DIRECTORY_SEPARATOR."ffmpeg -y -ss {$startTime} -t {$endTime} -i \"{$openDir}".DIRECTORY_SEPARATOR."{$currentFileName}\"  -vcodec copy -acodec copy \"{$saveDir}" . DIRECTORY_SEPARATOR. "{$currentFileName}\" &>/dev/null ";
+        $commandBuilt = "ffmpeg -y -ss {$startTime} -t {$endTime} -i \"{$openDir}".DIRECTORY_SEPARATOR."{$currentFileName}\"  -vcodec copy -acodec copy \"{$saveDir}" . DIRECTORY_SEPARATOR. "{$currentFileName}\" &>/dev/null ";
     } else {
-        $commandBuilt = "ffmpegWindows" . DIRECTORY_SEPARATOR . "ffmpeg -y -ss {$startTime} -t {$endTime} -i \"{$openDir}".DIRECTORY_SEPARATOR."{$currentFileName}\" -vcodec copy -acodec copy \"{$saveDir}" .DIRECTORY_SEPARATOR. "{$currentFileName}\" >nul 2>&1";
+        $commandBuilt = "ffmpeg -y -ss {$startTime} -t {$endTime} -i \"{$openDir}".DIRECTORY_SEPARATOR."{$currentFileName}\" -vcodec copy -acodec copy \"{$saveDir}" .DIRECTORY_SEPARATOR. "{$currentFileName}\" >nul 2>&1";
     }
     return $commandBuilt;
 }
@@ -113,8 +132,28 @@ function convertSecondToTimeCode($timeSecond) {
     echo "hour:{$hour} min: {$min} | second : {$timeSecond}" . " = " . $oldTimeSecond;
 
     return "{$hour}:${min}:{$timeSecond}";
-}
+}; //convert second to TimeCode ;
 
-; //convert second to TimeCode ;
+//getos : return : [linux | windows ]
+function getOS(){
+	if( strtolower(PHP_OS) == "linux" ){
+		return "linux";
+	}else{
+		if( substr( strtolower(PHP_OS) , 0 , 3 ) == "win" ){
+			return "windows";
+		}else{
+			echo "not support os " . PHP_OS ;
+			die;
+		}
+	}
+}//get OS 
 
+function getNumber($number){
+	if( is_numeric( $number ) ){
+		return $number;
+	}else{
+		echo "\n Vui lòng nhập số ! \n ";
+		die;
+	}
+}//getNumber
 	// -------------------------------------------- end functions ----------------------------------------------------------

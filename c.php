@@ -27,8 +27,106 @@
 
 require_once("inc/inc.php");
 
-// THAM SO CONFIG :
-$supportExt = array("mp4", "flv", "avi", "webm"); // hỗ trợ file nào !?
+if(  getOS() == "windows" ){
+	system("chcp 65001 &"); //system unicode display for windows, you must use unicode font in cmd to see this ! 
+}
+
+
+
+  // _____ _   _ ______ ____  
+ // |_   _| \ | |  ____/ __ \ 
+   // | | |  \| | |__ | |  | |
+   // | | | . ` |  __|| |  | |
+  // _| |_| |\  | |   | |__| |
+ // |_____|_| \_|_|    \____/ 
+
+
+// This program(currently) do a simple task: it trims your videos in input folder and output timmed videos to output folder , you can specify start time , end time !  
+                           
+
+
+
+   // _______     _______ _______ ______ __  __   _____  ______ ____  _    _ _____ _____  ______ __  __ ______ _   _ _______ 
+  // / ____\ \   / / ____|__   __|  ____|  \/  | |  __ \|  ____/ __ \| |  | |_   _|  __ \|  ____|  \/  |  ____| \ | |__   __|
+ // | (___  \ \_/ / (___    | |  | |__  | \  / | | |__) | |__ | |  | | |  | | | | | |__) | |__  | \  / | |__  |  \| |  | |   
+  // \___ \  \   / \___ \   | |  |  __| | |\/| | |  _  /|  __|| |  | | |  | | | | |  _  /|  __| | |\/| |  __| | . ` |  | |   
+  // ____) |  | |  ____) |  | |  | |____| |  | | | | \ \| |___| |__| | |__| |_| |_| | \ \| |____| |  | | |____| |\  |  | |   
+ // |_____/   |_| |_____/   |_|  |______|_|  |_| |_|  \_\______\___\_\\____/|_____|_|  \_\______|_|  |_|______|_| \_|  |_|   
+                                                                                                                          
+                                                                                                                          
+
+// OS: Windows 32/64bit | Linux currently support 64bit 
+// php >= 5.6 
+// if you using Windows, you need a working version of ffmpeg in system path, see how to install ffmpeg here: http://adaptivesamples.com/how-to-install-ffmpeg-on-windows/
+
+
+
+  // _    _  ______          __  _______ ____    _    _  _____ ______ 
+ // | |  | |/ __ \ \        / / |__   __/ __ \  | |  | |/ ____|  ____|
+ // | |__| | |  | \ \  /\  / /     | | | |  | | | |  | | (___ | |__   
+ // |  __  | |  | |\ \/  \/ /      | | | |  | | | |  | |\___ \|  __|  
+ // | |  | | |__| | \  /\  /       | | | |__| | | |__| |____) | |____ 
+ // |_|  |_|\____/   \/  \/        |_|  \____/   \____/|_____/|______|
+                                                                   
+                                                                   
+// just run 
+
+// ```
+	// php c.php <input-video-folder> <output-video-folder> <time-cut-start>  <time-cut-end>
+	
+// ```
+
+// if any parameter of them empty, it will use default setting in config section (line 73 - line 103 );
+
+														   
+																 																   
+
+
+
+ // ######   #######  ##    ## ######## ####  ######   
+// ##    ## ##     ## ###   ## ##        ##  ##    ##  
+// ##       ##     ## ####  ## ##        ##  ##        
+// ##       ##     ## ## ## ## ######    ##  ##   #### 
+// ##       ##     ## ##  #### ##        ##  ##    ##  
+// ##    ## ##     ## ##   ### ##        ##  ##    ##  
+ // ######   #######  ##    ## ##       ####  ######    config ! 
+ 
+ 
+$supportExt = array("mp4", "flv", "avi", "webm" , "mkv"); // hỗ trợ file nào !?
+
+if( empty( $argv[3] ) )
+	$startTime = 15; // thời gian theo giây, số giây bắt đầu ;
+else{
+	$startTime = getNumber( $argv[3] );
+}
+
+if( empty( $argv[4] ) ){
+	$endTime = 15; // số giây kết thúc trước ( kiểu như video 6 phút thì bỏ 5 giây cuối -> ghi là 5  )
+}else{
+		$endTime = getNumber( $argv[4] );
+}
+
+
+// ######## ##    ## ########  
+// ##       ###   ## ##     ## 
+// ##       ####  ## ##     ## 
+// ######   ## ## ## ##     ## 
+// ##       ##  #### ##     ## 
+// ##       ##   ### ##     ## 
+// ######## ##    ## ########     
+
+
+
+
+
+   // _____ _______       _____ _______    _____ ____  _____  ______  
+  // / ____|__   __|/\   |  __ \__   __|  / ____/ __ \|  __ \|  ____| 
+ // | (___    | |  /  \  | |__) | | |    | |   | |  | | |  | | |__    
+  // \___ \   | | / /\ \ |  _  /  | |    | |   | |  | | |  | |  __|   
+  // ____) |  | |/ ____ \| | \ \  | |    | |___| |__| | |__| | |____  
+ // |_____/   |_/_/    \_\_|  \_\ |_|     \_____\____/|_____/|______| 
+                                                                   
+
 // dir in 
 if (!empty($argv[1])) {
     if (!is_dir($argv[1])) {
@@ -51,9 +149,10 @@ if (!empty($argv[2])) {
     $convertedDir = __DIR__ .DIRECTORY_SEPARATOR. "video-out"; // đường dẫn mặc định folder chứa file lưu sau khi xử lí  
 }
 
-$startTime = 15; // thời gian theo giây, số giây bắt đầu ;
-$endTime = 15; // số giây kết thúc trước ( kiểu như video 6 phút thì bỏ 5 giây cuối -> ghi là 5  )
-// END THAM SO CONFIG 
+
+
+
+
 
 // DEBUG INFO 
     echo "OS: " . PHP_OS . "\n";
@@ -78,8 +177,8 @@ if (empty($convertDir)) {
 if (!file_exists($convertedDir)) {
     if (!mkdir($convertedDir, 0777, true)) {
         echo "Không thể tạo thư mục: " . $convertedDir . " vui lòng tạo folder thủ công và cấp quyền ghi cho folder !\n";
-    }
-    die;
+		die;
+   }
 }
 
 //check dir writeable 
