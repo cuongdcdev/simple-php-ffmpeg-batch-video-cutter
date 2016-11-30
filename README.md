@@ -14,7 +14,9 @@ This program(currently) do a simple task: it trims your videos in input folder a
 
 you need a working version of ffmpeg on Linux or working version on system path Windows
 
-( see how to install ffmpeg here: http://adaptivesamples.com/how-to-install-ffmpeg-on-windows/ )
+ for Windows,see how to install ffmpeg here: http://adaptivesamples.com/how-to-install-ffmpeg-on-windows/
+ for Linux, see how to install ffmpeg here: https://ffmpeg.org/download.html
+ 
 
 
 
@@ -41,13 +43,12 @@ __Parameters:__
 __Example__
 
 
-<pre>
-cut 5s from begining and cut 10s from end  for each video in /home/abc/video-in, after process complete, save videos to /home/abc/video-out :
-
-
-         <code> <center> php c.php /home/abc/video-in /home/abc/video-out 5 10</center></code>
+cut __5s__ from begining and cut __10s__ from end  for each video in __/home/abc/video-in__, after process complete, save videos to __/home/abc/video-out__ :
          
+ ``` 
+   	php c.php /home/abc/video-in /home/abc/video-out 5 10
+```
          
-</pre>
+
 
 if any parameter of them empty, it will use default setting in config section (line 73 - line 103 in `c.php` );
