@@ -1,4 +1,4 @@
-# Simple php-ffmpeg video cutter 
+# Simple php-ffmpeg batch video cutter 
 
 ###Info
 
