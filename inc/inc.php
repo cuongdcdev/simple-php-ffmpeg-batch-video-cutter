@@ -76,7 +76,7 @@ function cutVideoAndSave($arrFileName, $arrSupportExt, $openDirPath, $saveDirPat
         echo "\n video length: " . $totalVideoTime . "\n"; 
         $arrFileInfo = explode(DIRECTORY_SEPARATOR, $filePath);
         $fileName = $arrFileInfo[sizeof($arrFileInfo) - 1  ];
-        $videoEndTime = ( $totalVideoTime - $endTime ) > 0 ? ( $totalVideoTime - $endTime ) : ( $totalVideoTime - $startTime );
+        $videoEndTime = ( $totalVideoTime - $endTime ) > 0 ? ( $totalVideoTime - ( $endTime + $startTime)  ) : ( $totalVideoTime - $startTime );
         $cmd = cutCommandBuilder( $fileName, $openDirPath , $saveDirPath, $startTime, $videoEndTime, $osType);
         
         echo "\n filename:" . $fileName . "\n";
